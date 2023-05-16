@@ -1,7 +1,2 @@
-bin
-include
-lib
-.Python
-.envrc
 env/
 __pycache__
