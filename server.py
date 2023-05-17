@@ -58,19 +58,40 @@ def purchasePlaces():
     club = [c for c in clubs if c['name'] == request.form['club']][0]
     places_required = int(request.form['places'])
 
+    # places_required ne depasse pas le nombres de places que possede le club
     if places_required > int(club["points"]):
         flash(f"Your selected place number is superior than {club['points']}")
         return render_template('welcome.html', club=club, competitions=competitions)
+    # places_required ne dépasse pas le nombres de places disponible pour la compétition
     elif places_required > int(competition['numberOfPlaces']):
         flash(f"""The number of places selected is greater than the place of competition,
                 you only have them {competition['numberOfPlaces']}""")
         return render_template('welcome.html', club=club, competitions=competitions)
+    # vérifie si places_required ne dépasse pas 12
+    elif places_required > 12:
+        flash("You cannot reserve more than 12 places for this tournament.")
+        return render_template('welcome.html', club=club, competitions=competitions)
+    # Vérifie si le club a pas déja réservé des places
+    elif club['name'] in competition["clubsPlacesBooking"]:
+        # vérifie si places_required et les places déjà réservé ne dépasse pas 12
+        if competition["clubsPlacesBooking"][club['name']] + places_required <= 12:
+            competition['numberOfPlaces'] = int(competition['numberOfPlaces']) - places_required
+            competition["clubsPlacesBooking"][club['name']] = (int(competition["clubsPlacesBooking"][club['name']]) +
+                                                               places_required)
+            club['points'] = int(club['points']) - places_required
+            flash(f'Great-booking complete! {places_required} places')
+            print("SSSSS", competition)
+            return render_template('welcome.html', club=club, competitions=competitions)
+        else:
+            number_place = 12 - competition["clubsPlacesBooking"][club['name']]
+            flash(f'''You cannot buy more than 12 seats, you have left {number_place} for {club['name']}''')
+            return render_template('welcome.html', club=club, competitions=competitions)
     else:
         competition['numberOfPlaces'] = int(competition['numberOfPlaces']) - places_required
         club['points'] = int(club['points']) - places_required
-        flash('Great-booking complete!')
+        competition["clubsPlacesBooking"][club['name']] = places_required
+        flash(f'Great-booking complete! {places_required} places')
         return render_template('welcome.html', club=club, competitions=competitions)
-
 
 # TODO: Add route for points display
 
