@@ -71,22 +71,8 @@ def purchasePlaces():
     # vérifie si places_required ne dépasse pas 12
     elif places_required > 12:
         flash("You cannot reserve more than 12 places for this tournament.")
-    # Vérifie si le club a pas déja réservé des places
-    elif club['name'] in competition["clubsPlacesBooking"]:
-        # vérifie si places_required et les places déjà réservé ne dépasse pas 12
-        if competition["clubsPlacesBooking"][club['name']] + places_required <= 12:
-            competition['numberOfPlaces'] = int(competition['numberOfPlaces']) - places_required
-            competition["clubsPlacesBooking"][club['name']] = (int(competition["clubsPlacesBooking"][club['name']]) +
-                                                               places_required)
-            club['points'] = int(club['points']) - places_required
-            flash(f'Great-booking complete! {places_required} places')
-        else:
-            number_place = 12 - competition["clubsPlacesBooking"][club['name']]
-            flash(f'''You cannot buy more than 12 seats, you have left {number_place} for {club['name']}''')
     else:
         competition['numberOfPlaces'] = int(competition['numberOfPlaces']) - places_required
-        club['points'] = int(club['points']) - places_required
-        competition["clubsPlacesBooking"][club['name']] = places_required
         flash(f'Great-booking complete! {places_required} places')
     return render_template('welcome.html', club=club, competitions=competitions)
 

@@ -8,7 +8,6 @@ def competition_fixture():
             "name": "test competition",
             "date": "2025-03-27 10:00:00",
             "numberOfPlaces": "25",
-            "clubsPlacesBooking": {}
     }
     server.competitions.append(data)
 
@@ -19,7 +18,6 @@ def competition_fixture_2():
             "name": "test competition 2",
             "date": "2020-03-27 10:00:00",
             "numberOfPlaces": "25",
-            "clubsPlacesBooking": {}
     }
     server.competitions.append(data)
 
