@@ -20,7 +20,7 @@ def test_invalid_place_club(competition_fixture, club_fixture):
                                                    "places": 35})
 
     data = response.data.decode()
-    assert "Your selected place number is superior than 30" in data
+    assert "Your selected place number is superior than 25" in data
     assert response.status_code == 200
 
 
@@ -44,4 +44,16 @@ def test_place_more_of_12(competition_fixture, club_fixture_2):
 
     data = response.data.decode()
     assert ("You cannot reserve more than 12 places for this tournament." in data)
+    assert response.status_code == 200
+
+
+def test_update_place_remaining_club(competition_fixture, club_fixture_2):
+    response = server.app.test_client().post('/purchasePlaces',
+                                             data={"club": "test club 2",
+                                                   "competition": "test competition",
+                                                   "places": 10})
+
+    data = response.data.decode()
+    assert ("Points available: 30" in data)
+    assert ("Great-booking complete! 10 places" in data)
     assert response.status_code == 200
