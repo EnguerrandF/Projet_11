@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from flask import Flask, render_template, request, redirect, flash, url_for
 
 
@@ -45,11 +46,13 @@ def showSummary():
 def book(competition, club):
     found_club = [c for c in clubs if c['name'] == club][0]
     found_competition = [c for c in competitions if c['name'] == competition][0]
-    if found_club and found_competition:
+
+    if found_club and found_competition and (datetime.strptime(found_competition['date'],
+                                                               "%Y-%m-%d %H:%M:%S") > datetime.now()):
         return render_template('booking.html', club=found_club, competition=found_competition)
     else:
-        flash("Something went wrong-please try again")
-        return render_template('welcome.html', club=club, competitions=competitions)
+        flash("You cannot reserve seats, expired date.")
+        return render_template('welcome.html', club=found_club, competitions=competitions)
 
 
 @app.route('/purchasePlaces', methods=['POST'])
@@ -61,16 +64,13 @@ def purchasePlaces():
     # places_required ne depasse pas le nombres de places que possede le club
     if places_required > int(club["points"]):
         flash(f"Your selected place number is superior than {club['points']}")
-        return render_template('welcome.html', club=club, competitions=competitions)
     # places_required ne dépasse pas le nombres de places disponible pour la compétition
     elif places_required > int(competition['numberOfPlaces']):
         flash(f"""The number of places selected is greater than the place of competition,
                 you only have them {competition['numberOfPlaces']}""")
-        return render_template('welcome.html', club=club, competitions=competitions)
     # vérifie si places_required ne dépasse pas 12
     elif places_required > 12:
         flash("You cannot reserve more than 12 places for this tournament.")
-        return render_template('welcome.html', club=club, competitions=competitions)
     # Vérifie si le club a pas déja réservé des places
     elif club['name'] in competition["clubsPlacesBooking"]:
         # vérifie si places_required et les places déjà réservé ne dépasse pas 12
@@ -80,17 +80,15 @@ def purchasePlaces():
                                                                places_required)
             club['points'] = int(club['points']) - places_required
             flash(f'Great-booking complete! {places_required} places')
-            return render_template('welcome.html', club=club, competitions=competitions)
         else:
             number_place = 12 - competition["clubsPlacesBooking"][club['name']]
             flash(f'''You cannot buy more than 12 seats, you have left {number_place} for {club['name']}''')
-            return render_template('welcome.html', club=club, competitions=competitions)
     else:
         competition['numberOfPlaces'] = int(competition['numberOfPlaces']) - places_required
         club['points'] = int(club['points']) - places_required
         competition["clubsPlacesBooking"][club['name']] = places_required
         flash(f'Great-booking complete! {places_required} places')
-        return render_template('welcome.html', club=club, competitions=competitions)
+    return render_template('welcome.html', club=club, competitions=competitions)
 
 # TODO: Add route for points display
 
@@ -98,3 +96,7 @@ def purchasePlaces():
 @app.route('/logout')
 def logout():
     return redirect(url_for('index'))
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
