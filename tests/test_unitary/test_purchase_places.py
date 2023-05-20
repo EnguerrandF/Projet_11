@@ -57,3 +57,10 @@ def test_update_place_remaining_club(competition_fixture, club_fixture_2):
     assert ("Points available: 30" in data)
     assert ("Great-booking complete! 10 places" in data)
     assert response.status_code == 200
+
+
+def test_list_points_clubs(club_fixture_2, club_fixture):
+    response = server.app.test_client().post('/showSummary', data={"email": "test@simplylift.com"})
+    data = response.data.decode()
+    assert "test club : 30" in data
+    assert "test club 2 : 40" in data
