@@ -13,6 +13,7 @@ def competition_fixture_app():
     yield
     server.competitions.pop()
 
+
 @pytest.fixture(scope="class")
 def club_fixture_app():
     data = {
